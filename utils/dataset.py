@@ -34,6 +34,7 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import json
 from rasterio import merge
+from .histogram_matching import histogram_matching  # 导入直方图匹配模块
 import random
 # def get_backscatterCoef(raw_s1_dta):
 #     coef = np.power(10.0, raw_s1_dta / 10.0)
@@ -80,7 +81,7 @@ def mean_std_normalization(arr, mean, std):
 
 
 class RSDataset(Dataset):
-    def __init__(self, dataset='China', stat_path_2015='', stat_path_2020='', stat_path_2024='', num_sample=5000, oversample=True):
+    def __init__(self, dataset='China', stat_path='', num_sample=5000, oversample=True):
         if dataset == 'China':
             dataset_folder = 'China_dataset_Amap'
         else:
@@ -141,9 +142,7 @@ class RSDataset(Dataset):
         self.height_data = self.read_singleband_labels(height_paths)
         self.road_data = self.read_singleband_labels(road_paths)
 
-        self.stat_path_2015 = stat_path_2015
-        self.stat_path_2020 = stat_path_2020
-        self.stat_path_2024 = stat_path_2024
+        self.stat_path = stat_path
 
         self.oversample = oversample
         self.sample_weights = None
@@ -383,10 +382,10 @@ class RSDataset(Dataset):
         raw_s1_2024 = self.s1_images_data_2024[idx]
         raw_s2_2024 = self.s2_images_data_2024[idx]
 
-        # 3. 归一化特征
-        features_2015 = self.get_normalized_features(raw_s1_2015, raw_s2_2015, self.stat_path_2015)
-        features_2020 = self.get_normalized_features(raw_s1_2020, raw_s2_2020, self.stat_path_2020)
-        features_2024 = self.get_normalized_features(raw_s1_2024, raw_s2_2024, self.stat_path_2024)
+        # 3. 归一化特征 (使用2020年的统计参数，因为数据已经匹配到2020的分布)
+        features_2015 = self.get_normalized_features(raw_s1_2015, raw_s2_2015, self.stat_path)
+        features_2020 = self.get_normalized_features(raw_s1_2020, raw_s2_2020, self.stat_path)
+        features_2024 = self.get_normalized_features(raw_s1_2024, raw_s2_2024, self.stat_path)
 
         features_2015 = torch.nan_to_num(features_2015, 0.0)
         features_2020 = torch.nan_to_num(features_2020, 0.0)
