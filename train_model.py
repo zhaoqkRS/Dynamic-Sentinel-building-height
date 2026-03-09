@@ -46,9 +46,7 @@ def train(SR, device, batch_size, in_lr, num_epochs, train_perc, num_sample, beg
     #########################
     # Dataset initialization
     dataset = RSDataset(dataset = 'China',
-                        stat_path_2015 = 'datasets\\China_images_training_stats_2015.json',
-                        stat_path_2020 = 'datasets\\China_images_training_stats_2020.json',
-                        stat_path_2024 = 'datasets\\China_images_training_stats_2024.json',
+                        stat_path = 'datasets\\China_images_training_stats.json',
                         num_sample = num_sample,
                         oversample = True)
 
